@@ -1,0 +1,12 @@
+import { supabase } from "./supabase.js";
+const WA="919999999999"; let products=[],cart=JSON.parse(localStorage.novacart||"[]");
+const money=n=>"₹"+Number(n).toLocaleString("en-IN");
+async function load(){const {data,error}=await supabase.from("products").select("*").order("created_at",{ascending:false});products=data||[];if(error)console.error(error);renderCats();render(products)}
+function renderCats(){let cs=[...new Set(products.map(p=>p.category))];document.querySelector("#cats").innerHTML=cs.map(c=>`<div class="cat" onclick="filterCat('${c.replaceAll("'","\\'")}')"><b>${c}</b><small>${products.filter(p=>p.category===c).length} products</small></div>`).join("")||"<p>No products yet. Add them from Admin.</p>"}
+function render(list){document.querySelector("#productsGrid").innerHTML=list.map(p=>`<article class="card"><img src="${p.image_url}" alt="${p.name}"><div class="info"><h3>${p.name}</h3><p>${p.description||""}</p><div class="row"><span class="price">${money(p.price)}</span><div><a class="buy" href="${p.buy_url}" target="_blank" rel="noopener">Buy ↗</a><button onclick="add(${p.id})">+ Bag</button></div></div></div></article>`).join("")||"<p>No products found.</p>"}
+window.filterCat=c=>render(products.filter(p=>p.category===c));window.add=id=>{cart.push(id);localStorage.novacart=JSON.stringify(cart);updateCart()};
+window.toggleCart=()=>document.querySelector("#cart").classList.toggle("open");
+function updateCart(){document.querySelector("#count").textContent=cart.length;let items=cart.map(id=>products.find(p=>p.id==id)).filter(Boolean);document.querySelector("#cartItems").innerHTML=items.map((p,i)=>`<div class="item"><img src="${p.image_url}"><div><b>${p.name}</b><small>${money(p.price)}</small><br><button onclick="removeItem(${i})">Remove</button></div></div>`).join("")||"<p>Bag is empty.</p>";document.querySelector("#total").textContent=money(items.reduce((s,p)=>s+Number(p.price),0))}
+window.removeItem=i=>{cart.splice(i,1);localStorage.novacart=JSON.stringify(cart);updateCart()};
+window.whatsapp=()=>{let items=cart.map(id=>products.find(p=>p.id==id)).filter(Boolean);if(!items.length)return;let msg="Hi! I want to order:%0A"+items.map(p=>`• ${p.name} — ${money(p.price)}`).join("%0A");location.href=`https://wa.me/${WA}?text=${msg}`};
+document.querySelector("#cartBtn").onclick=toggleCart;load();updateCart();

@@ -1,0 +1,10 @@
+import { supabase } from "./supabase.js";
+const $=id=>document.getElementById(id);let editing=null;
+supabase.auth.onAuthStateChange((_e,session)=>{if(session){$("login").hidden=true;$("panel").hidden=false;load()}else{$("login").hidden=false;$("panel").hidden=true}});
+$("loginBtn").onclick=async()=>{let {error}=await supabase.auth.signInWithPassword({email:$("email").value,password:$("password").value});$("loginMsg").textContent=error?error.message:"Logged in!"};
+$("logout").onclick=()=>supabase.auth.signOut();
+async function load(){let {data}=await supabase.from("products").select("*").order("created_at",{ascending:false});$("adminProducts").innerHTML=(data||[]).map(p=>`<div class="admin-card"><img src="${p.image_url}"><div><b>${p.name}</b><br><small>${p.category} · ₹${Number(p.price).toLocaleString("en-IN")}</small></div><div class="admin-actions"><button onclick='editProduct(${JSON.stringify(p).replaceAll("'","&#39;")})'>Edit</button><button class="danger" onclick="deleteProduct(${p.id})">Delete</button></div></div>`).join("")}
+$("productForm").onsubmit=async e=>{e.preventDefault();let row={name:$("name").value,category:$("category").value,price:Number($("price").value),image_url:$("image").value,buy_url:$("buy").value,description:$("description").value};let q=editing?supabase.from("products").update(row).eq("id",editing):supabase.from("products").insert(row);let {error}=await q;if(error)alert(error.message);else{reset();load()}};
+window.editProduct=p=>{editing=p.id;$("pid").value=p.id;$("name").value=p.name;$("category").value=p.category;$("price").value=p.price;$("image").value=p.image_url;$("buy").value=p.buy_url;$("description").value=p.description||"";scrollTo(0,0)};
+window.deleteProduct=async id=>{if(confirm("Delete this product?")){let {error}=await supabase.from("products").delete().eq("id",id);if(error)alert(error.message);else load()}};
+function reset(){editing=null;$("productForm").reset()}$("cancel").onclick=reset;
