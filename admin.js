@@ -1,4 +1,4 @@
-import { supabase } from "./supabase.js";
+import { supabase } from './supabase.js';
 
 const $ = (id) => document.getElementById(id);
 
@@ -8,75 +8,83 @@ let editingPost = null;
 let editingNavigation = null;
 
 
-/* =====================================================
-   HELPERS
-===================================================== */
+// ===============================
+// MESSAGE
+// ===============================
 
-function esc(value = "") {
-  return String(value).replace(/[&<>'"]/g, (c) => ({
-    "&": "&amp;",
-    "<": "&lt;",
-    ">": "&gt;",
-    "'": "&#39;",
-    '"': "&quot;"
-  }[c]));
-}
-
-function showMessage(id, message, error = false) {
+function message(id, text, error = false) {
   const el = $(id);
-
   if (!el) return;
 
-  el.textContent = message;
-  el.style.display = "block";
-  el.style.color = error ? "crimson" : "green";
-}
-
-function clearMessage(id) {
-  const el = $(id);
-
-  if (el) {
-    el.textContent = "";
-  }
+  el.textContent = text;
+  el.style.color = error ? '#ff6b6b' : '';
 }
 
 
-/* =====================================================
-   ADMIN AUTH
-===================================================== */
+// ===============================
+// ADMIN CHECK
+// ===============================
 
 async function isAdmin() {
 
-  const {
-    data: { user },
-    error
-  } = await supabase.auth.getUser();
+  try {
 
-  if (error || !user) {
+    const {
+      data: { user },
+      error: authError
+    } = await supabase.auth.getUser();
+
+    if (authError) {
+      console.error(authError);
+      return false;
+    }
+
+    if (!user) return false;
+
+
+    const {
+      data,
+      error
+    } = await supabase
+      .from('admin_users')
+      .select('user_id')
+      .eq('user_id', user.id)
+      .maybeSingle();
+
+
+    if (error) {
+      console.error('Admin check error:', error);
+      return false;
+    }
+
+    return !!data;
+
+  } catch (err) {
+
+    console.error(err);
     return false;
+
   }
-
-  const {
-    data,
-    error: adminError
-  } = await supabase
-    .from("admin_users")
-    .select("user_id")
-    .eq("user_id", user.id)
-    .maybeSingle();
-
-  if (adminError) {
-    console.error(
-      "Admin check error:",
-      adminError
-    );
-
-    return false;
-  }
-
-  return !!data;
 }
 
+
+// ===============================
+// SHOW PANEL
+// ===============================
+
+function showPanel() {
+
+  $('login').hidden = true;
+  $('panel').hidden = false;
+
+  loadAll();
+
+}
+
+
+// ===============================
+// BOOT
+// ===============================
 
 async function boot() {
 
@@ -84,69 +92,67 @@ async function boot() {
 
   if (admin) {
 
-    if ($("login")) {
-      $("login").hidden = true;
-    }
-
-    if ($("panel")) {
-      $("panel").hidden = false;
-    }
-
-    await loadAll();
+    showPanel();
 
   } else {
 
-    if ($("login")) {
-      $("login").hidden = false;
-    }
+    $('login').hidden = false;
+    $('panel').hidden = true;
 
-    if ($("panel")) {
-      $("panel").hidden = true;
-    }
   }
+
 }
 
 
-/* =====================================================
-   LOGIN
-===================================================== */
+// ===============================
+// LOGIN
+// ===============================
 
-if ($("loginBtn")) {
+async function login() {
 
-  $("loginBtn").onclick = async () => {
+  const email = $('email').value.trim();
+  const password = $('password').value;
 
-    clearMessage("loginMsg");
 
-    const email =
-      $("email").value.trim();
+  if (!email || !password) {
 
-    const password =
-      $("password").value;
+    message(
+      'loginMsg',
+      'Please enter email and password.',
+      true
+    );
 
-    if (!email || !password) {
+    return;
+  }
 
-      showMessage(
-        "loginMsg",
-        "Enter email and password.",
-        true
-      );
 
-      return;
-    }
+  const button = $('loginBtn');
 
+  button.disabled = true;
+  button.textContent = 'Logging in...';
+
+  message('loginMsg', '');
+
+
+  try {
 
     const {
+      data,
       error
     } = await supabase.auth.signInWithPassword({
-      email,
-      password
+
+      email: email,
+      password: password
+
     });
 
 
     if (error) {
 
-      showMessage(
-        "loginMsg",
+      console.error('Login error:', error);
+
+      message(
+        'loginMsg',
         error.message,
         true
       );
@@ -155,298 +161,334 @@ if ($("loginBtn")) {
     }
 
 
-    showMessage(
-      "loginMsg",
-      "Login successful."
+    if (!data.user) {
+
+      message(
+        'loginMsg',
+        'Login failed. Please try again.',
+        true
+      );
+
+      return;
+    }
+
+
+    const admin = await isAdmin();
+
+
+    if (!admin) {
+
+      await supabase.auth.signOut();
+
+      message(
+        'loginMsg',
+        'Login successful, but this account is not an admin.',
+        true
+      );
+
+      return;
+    }
+
+
+    message(
+      'loginMsg',
+      'Login successful!'
     );
 
-    await boot();
-  };
+
+    showPanel();
+
+
+  } catch (err) {
+
+    console.error(err);
+
+    message(
+      'loginMsg',
+      err.message || 'Something went wrong.',
+      true
+    );
+
+  } finally {
+
+    button.disabled = false;
+    button.textContent = 'Login';
+
+  }
+
 }
 
 
-/* =====================================================
-   LOGOUT
-===================================================== */
+// ===============================
+// LOGOUT
+// ===============================
 
-if ($("logout")) {
+async function logout() {
 
-  $("logout").onclick = async () => {
+  await supabase.auth.signOut();
 
-    await supabase.auth.signOut();
+  $('panel').hidden = true;
+  $('login').hidden = false;
 
-    location.reload();
-  };
 }
 
 
-supabase.auth.onAuthStateChange(() => {
-  setTimeout(boot, 0);
-});
+// ===============================
+// TABS
+// ===============================
+
+function setupTabs() {
+
+  document
+    .querySelectorAll('[data-tab]')
+    .forEach(button => {
+
+      button.addEventListener('click', () => {
+
+        document
+          .querySelectorAll('.tab')
+          .forEach(tab => {
+            tab.hidden = true;
+          });
 
 
-/* =====================================================
-   TABS
-===================================================== */
-
-document
-  .querySelectorAll("[data-tab]")
-  .forEach(button => {
-
-    button.onclick = () => {
-
-      document
-        .querySelectorAll(".tab")
-        .forEach(tab => {
-          tab.hidden = true;
-        });
+        const tab = $(
+          'tab-' + button.dataset.tab
+        );
 
 
-      const target =
-        $("tab-" + button.dataset.tab);
+        if (tab) {
 
-      if (target) {
-        target.hidden = false;
-      }
-    };
-  });
+          tab.hidden = false;
+
+        }
+
+      });
+
+    });
+
+}
 
 
-/* =====================================================
-   LOAD ALL
-===================================================== */
+// ===============================
+// LOAD EVERYTHING
+// ===============================
 
 async function loadAll() {
 
-  await Promise.all([
+  await Promise.allSettled([
+
     loadSite(),
     loadProducts(),
     loadPosts(),
     loadNavigation(),
     loadAds()
+
   ]);
+
 }
 
 
-/* =====================================================
-   WEBSITE SETTINGS
-===================================================== */
+// ===============================
+// WEBSITE SETTINGS
+// ===============================
 
 async function loadSite() {
 
-  const {
-    data,
-    error
-  } = await supabase
-    .from("site_settings")
-    .select("*")
-    .limit(1)
-    .maybeSingle();
+  try {
 
-
-  if (error) {
-
-    console.error(
-      "Site settings load error:",
+    const {
+      data,
       error
-    );
-
-    showMessage(
-      "siteMsg",
-      error.message,
-      true
-    );
-
-    return;
-  }
+    } = await supabase
+      .from('site_settings')
+      .select('*')
+      .limit(1)
+      .maybeSingle();
 
 
-  if (!data) return;
+    if (error) {
 
+      console.error('Site settings:', error);
+      return;
 
-  const fields = [
-    ["siteName", "site_name"],
-    ["tagline", "tagline"],
-    ["logoUrl", "logo_url"],
-    ["primaryColor", "primary_color"],
-    ["accentColor", "accent_color"],
-    ["heroTitle", "hero_title"],
-    ["heroText", "hero_text"],
-    ["heroButton", "hero_button"],
-    ["footerText", "footer_text"],
-    ["seoTitle", "seo_title"],
-    ["seoDescription", "seo_description"]
-  ];
-
-
-  fields.forEach(([element, column]) => {
-
-    if ($(element)) {
-      $(element).value =
-        data[column] ?? "";
     }
 
-  });
+
+    if (!data) return;
+
+
+    const fields = [
+
+      ['siteName', 'site_name'],
+      ['tagline', 'tagline'],
+      ['logoUrl', 'logo_url'],
+      ['primaryColor', 'primary_color'],
+      ['accentColor', 'accent_color'],
+      ['heroTitle', 'hero_title'],
+      ['heroText', 'hero_text'],
+      ['heroButton', 'hero_button'],
+      ['footerText', 'footer_text'],
+      ['seoTitle', 'seo_title'],
+      ['seoDescription', 'seo_description']
+
+    ];
+
+
+    fields.forEach(([id, column]) => {
+
+      const el = $(id);
+
+      if (el) {
+
+        el.value = data[column] ?? '';
+
+      }
+
+    });
+
+  } catch (err) {
+
+    console.error(err);
+
+  }
+
 }
 
 
-/* =====================================================
-   SAVE WEBSITE
-===================================================== */
+// ===============================
+// SAVE WEBSITE
+// ===============================
 
-if ($("siteForm")) {
+$('siteForm').addEventListener(
+  'submit',
+  async (e) => {
 
-  $("siteForm").onsubmit = async (event) => {
-
-    event.preventDefault();
-
-    clearMessage("siteMsg");
+    e.preventDefault();
 
 
     const row = {
 
-      site_name:
-        $("siteName").value.trim(),
-
-      tagline:
-        $("tagline").value.trim(),
-
-      logo_url:
-        $("logoUrl").value.trim(),
-
-      primary_color:
-        $("primaryColor").value.trim(),
-
-      accent_color:
-        $("accentColor").value.trim(),
-
-      hero_title:
-        $("heroTitle").value.trim(),
-
-      hero_text:
-        $("heroText").value.trim(),
-
-      hero_button:
-        $("heroButton").value.trim(),
-
-      footer_text:
-        $("footerText").value.trim(),
-
-      seo_title:
-        $("seoTitle").value.trim(),
-
-      seo_description:
-        $("seoDescription").value.trim(),
+      site_name: $('siteName').value,
+      tagline: $('tagline').value,
+      logo_url: $('logoUrl').value,
+      primary_color: $('primaryColor').value,
+      accent_color: $('accentColor').value,
+      hero_title: $('heroTitle').value,
+      hero_text: $('heroText').value,
+      hero_button: $('heroButton').value,
+      footer_text: $('footerText').value,
+      seo_title: $('seoTitle').value,
+      seo_description: $('seoDescription').value,
 
       updated_at:
         new Date().toISOString()
+
     };
 
 
-    try {
-
-      const {
-        data: old,
-        error: findError
-      } = await supabase
-        .from("site_settings")
-        .select("id")
-        .limit(1)
-        .maybeSingle();
+    const {
+      data: old,
+      error: findError
+    } = await supabase
+      .from('site_settings')
+      .select('id')
+      .limit(1)
+      .maybeSingle();
 
 
-      if (findError) {
-        throw findError;
-      }
+    if (findError) {
 
+      alert(findError.message);
+      return;
 
-      let result;
-
-
-      if (old?.id) {
-
-        result =
-          await supabase
-            .from("site_settings")
-            .update(row)
-            .eq("id", old.id);
-
-      } else {
-
-        result =
-          await supabase
-            .from("site_settings")
-            .insert(row);
-
-      }
-
-
-      if (result.error) {
-        throw result.error;
-      }
-
-
-      showMessage(
-        "siteMsg",
-        "✅ Website settings saved successfully."
-      );
-
-    } catch (error) {
-
-      console.error(
-        "Website save error:",
-        error
-      );
-
-      showMessage(
-        "siteMsg",
-        "❌ Save failed: " + error.message,
-        true
-      );
     }
-  };
-}
 
 
-/* =====================================================
-   PRODUCTS
-===================================================== */
+    let result;
+
+
+    if (old) {
+
+      result = await supabase
+        .from('site_settings')
+        .update(row)
+        .eq('id', old.id);
+
+    } else {
+
+      result = await supabase
+        .from('site_settings')
+        .insert(row);
+
+    }
+
+
+    if (result.error) {
+
+      alert(result.error.message);
+
+    } else {
+
+      alert('Website settings saved successfully.');
+
+    }
+
+  }
+);
+
+
+// ===============================
+// PRODUCTS
+// ===============================
 
 async function loadProducts() {
 
-  const {
-    data,
-    error
-  } = await supabase
-    .from("products")
-    .select("*")
-    .order("created_at", {
-      ascending: false
-    });
+  try {
 
-
-  if (error) {
-
-    console.error(
-      "Products load error:",
+    const {
+      data,
       error
-    );
+    } = await supabase
+      .from('products')
+      .select('*')
+      .order('created_at', {
+        ascending: false
+      });
 
-    showMessage(
-      "productMsg",
-      error.message,
-      true
-    );
 
-    return;
+    if (error) {
+
+      console.error(error);
+
+      $('adminProducts').innerHTML =
+        '<p>Unable to load products.</p>';
+
+      return;
+
+    }
+
+
+    products = data || [];
+
+
+    renderProducts();
+
+    loadProductChecks();
+
+  } catch (err) {
+
+    console.error(err);
+
   }
 
+}
 
-  products = data || [];
 
+function renderProducts() {
 
   const container =
-    $("adminProducts");
+    $('adminProducts');
 
   if (!container) return;
 
@@ -454,9 +496,10 @@ async function loadProducts() {
   if (!products.length) {
 
     container.innerHTML =
-      "<p>No products.</p>";
+      '<p>No products yet.</p>';
 
     return;
+
   }
 
 
@@ -466,8 +509,8 @@ async function loadProducts() {
       <div class="admin-card">
 
         <img
-          src="${esc(product.image_url || "")}"
-          alt="${esc(product.name || "Product")}"
+          src="${esc(product.image_url || '')}"
+          alt=""
         >
 
         <div>
@@ -479,8 +522,9 @@ async function loadProducts() {
           <br>
 
           <small>
-            ${esc(product.category || "")}
-            · ₹${Number(product.price || 0).toLocaleString("en-IN")}
+            ${esc(product.category || '')}
+            · ₹${Number(product.price || 0)
+              .toLocaleString('en-IN')}
           </small>
 
         </div>
@@ -488,14 +532,16 @@ async function loadProducts() {
         <div class="admin-actions">
 
           <button
-            data-edit-p="${product.id}"
+            type="button"
+            data-edit-product="${product.id}"
           >
             Edit
           </button>
 
           <button
+            type="button"
             class="danger"
-            data-del-p="${product.id}"
+            data-delete-product="${product.id}"
           >
             Delete
           </button>
@@ -504,96 +550,64 @@ async function loadProducts() {
 
       </div>
 
-    `).join("");
+    `).join('');
 
 
   document
-    .querySelectorAll("[data-edit-p]")
+    .querySelectorAll('[data-edit-product]')
     .forEach(button => {
 
-      button.onclick = () =>
+      button.onclick = () => {
+
         editProduct(
-          Number(button.dataset.editP)
+          Number(button.dataset.editProduct)
         );
+
+      };
 
     });
 
 
   document
-    .querySelectorAll("[data-del-p]")
+    .querySelectorAll('[data-delete-product]')
     .forEach(button => {
 
-      button.onclick = () =>
+      button.onclick = () => {
+
         deleteProduct(
-          Number(button.dataset.delP)
+          Number(button.dataset.deleteProduct)
         );
 
+      };
+
     });
+
 }
 
 
-/* =====================================================
-   PRODUCT FORM
-===================================================== */
+// ===============================
+// SAVE PRODUCT
+// ===============================
 
-if ($("productForm")) {
+$('productForm').addEventListener(
+  'submit',
+  async (e) => {
 
-  $("productForm").onsubmit =
-    async (event) => {
-
-      event.preventDefault();
-
-      clearMessage("productMsg");
+    e.preventDefault();
 
 
-      const row = {
+    const row = {
 
-        name:
-          $("pname").value.trim(),
+      name: $('pname').value.trim(),
 
-        category:
-          $("pcategory").value.trim(),
+      category:
+        $('pcategory').value.trim(),
 
-        price:
-          Number($("pprice").value || 0),
+      price:
+        Number($('pprice').value),
 
-        image_url:
-          $("pimage").value.trim(),
+      image_url:
+        $('pimage').value.trim(),
 
-        buy_url:
-          $("pbuy").value.trim(),
-
-        description:
-          $("pdesc").value.trim(),
-
-        featured:
-          $("pfeatured").checked,
-
-        updated_at:
-          new Date().toISOString()
-      };
-
-
-      try {
-
-        let result;
-
-
-        if (editingProduct) {
-
-          result =
-            await supabase
-              .from("products")
-              .update(row)
-              .eq("id", editingProduct);
-
-        } else {
-
-          result =
-            await supabase
-              .from("products")
-              .insert(row);
-        }
-
-
-        if (result.error)
+      buy_url:
+        $('pb
