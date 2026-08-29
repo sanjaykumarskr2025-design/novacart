@@ -1,2 +1,200 @@
-import { supabase } from "./supabase.js";const esc=v=>String(v??"").replace(/[&<>'"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;",'"':"&quot;"}[c]));const money=n=>"₹"+Number(n||0).toLocaleString("en-IN");async function load(){try{const slug=new URLSearchParams(location.search).get('slug');if(!slug)throw new Error('Post not found');const {data:post,error}=await supabase.from('posts').select('*').eq('slug',slug).eq('published',true).single();if(error)throw error;document.title=post.title;document.querySelector('#metaDescription').content=post.excerpt||'';document.querySelector('#post').innerHTML=`<small>${esc(post.category||'NovaCart')}</small><h1>${esc(post.title)}</h1>${post.image_url?`<img class="post-cover" src="${esc(post.image_url)}" alt="${esc(post.title)}">`:''}<p>${esc(post.excerpt||'')}</p><div class="post-content">${esc(post.content||'').replace(/
-/g,'<br>')}</div>`;const {data:links,error:le}=await supabase.from('post_products').select('product_id').eq('post_id',post.id);if(le)throw le;const ids=(links||[]).map(x=>x.product_id);let related=[];if(ids.length){const r=await supabase.from('products').select('*').in('id',ids);if(r.error)throw r.error;related=r.data||[]}document.querySelector('#relatedProducts').innerHTML=related.map(p=>`<article class="card"><img src="${esc(p.image_url)}" alt="${esc(p.name)}"><div class="info"><h3>${esc(p.name)}</h3><p>${esc(p.description||'')}</p><div class="row"><span class="price">${money(p.price)}</span><a class="buy" href="${esc(p.buy_url)}" target="_blank" rel="noopener">Buy ↗</a></div></div></article>`).join('')||'<p>No related products selected for this post.</p>';const {data:a}=await supabase.from('adsense_settings').select('*').limit(1).maybeSingle();if(a?.enabled&&a.show_post_ads&&a.publisher_id&&a.post_slot){const box=document.querySelector('#postAd');box.innerHTML=`<ins class="adsbygoogle" style="display:block" data-ad-client="${esc(a.publisher_id)}" data-ad-slot="${esc(a.post_slot)}" data-ad-format="auto" data-full-width-responsive="true"></ins>`;const s=document.createElement('script');s.async=true;s.src='https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client='+encodeURIComponent(a.publisher_id);s.crossOrigin='anonymous';document.head.appendChild(s);s.onload=()=>{try{(window.adsbygoogle=window.adsbygoogle||[]).push({})}catch(e){}}}}catch(e){console.error(e);document.querySelector('#post').innerHTML=`<h2>Unable to load this post.</h2><p>${esc(e.message)}</p>`}}load();
+import { supabase } from "./supabase.js";
+
+const $ = (id) => document.getElementById(id);
+
+function esc(value = "") {
+  return String(value).replace(/[&<>'"]/g, (c) => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    "'": "&#39;",
+    '"': "&quot;"
+  }[c]));
+}
+
+const money = (value) =>
+  "₹" + Number(value || 0).toLocaleString("en-IN");
+
+
+/* =========================
+   GET POST SLUG
+========================= */
+
+function getSlug() {
+  const params = new URLSearchParams(
+    window.location.search
+  );
+
+  return params.get("slug");
+}
+
+
+/* =========================
+   PRODUCT CARD
+========================= */
+
+function productCard(product) {
+  return `
+    <article class="card">
+
+      <img
+        src="${esc(product.image_url || "")}"
+        alt="${esc(product.name || "Product")}"
+        loading="lazy"
+      >
+
+      <div class="info">
+
+        <small>
+          ${esc(product.category || "")}
+        </small>
+
+        <h3>
+          ${esc(product.name || "Product")}
+        </h3>
+
+        ${
+          product.description
+            ? `
+              <p>
+                ${esc(product.description)}
+              </p>
+            `
+            : ""
+        }
+
+        <div class="row">
+
+          <span class="price">
+            ${money(product.price)}
+          </span>
+
+          ${
+            product.buy_url
+              ? `
+                <a
+                  class="buy"
+                  href="${esc(product.buy_url)}"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Buy ↗
+                </a>
+              `
+              : ""
+          }
+
+        </div>
+
+      </div>
+
+    </article>
+  `;
+}
+
+
+/* =========================
+   LOAD POST
+========================= */
+
+async function loadPost() {
+
+  const slug = getSlug();
+
+  if (!slug) {
+    showError();
+    return;
+  }
+
+  const { data: post, error } = await supabase
+    .from("posts")
+    .select("*")
+    .eq("slug", slug)
+    .eq("published", true)
+    .maybeSingle();
+
+  if (error) {
+    console.error("Post loading error:", error);
+    showError();
+    return;
+  }
+
+  if (!post) {
+    showError();
+    return;
+  }
+
+
+  /* =========================
+     POST INFORMATION
+  ========================= */
+
+  document.title =
+    post.title || "NovaCart Post";
+
+  const meta =
+    document.querySelector(
+      'meta[name="description"]'
+    );
+
+  if (meta && post.excerpt) {
+    meta.setAttribute(
+      "content",
+      post.excerpt
+    );
+  }
+
+
+  if ($("postTitle")) {
+    $("postTitle").textContent =
+      post.title || "";
+  }
+
+  if ($("postExcerpt")) {
+    $("postExcerpt").textContent =
+      post.excerpt || "";
+  }
+
+  if ($("postBody")) {
+
+    /*
+      Preserve line breaks from the
+      admin textarea.
+    */
+
+    $("postBody").innerHTML =
+      esc(post.content || "")
+        .replace(/\n/g, "<br>");
+  }
+
+
+  /* =========================
+     POST IMAGE
+  ========================= */
+
+  if (
+    $("postImageWrap") &&
+    post.image_url
+  ) {
+
+    $("postImageWrap").innerHTML = `
+      <img
+        src="${esc(post.image_url)}"
+        alt="${esc(post.title || "Post")}"
+        style="
+          width:100%;
+          max-height:600px;
+          object-fit:cover;
+          border-radius:20px;
+          margin-bottom:30px;
+        "
+      >
+    `;
+  }
+
+
+  /* =========================
+     LOAD RELATED PRODUCTS
+  ========================= */
+
+  await
