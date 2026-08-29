@@ -1,1 +1,67 @@
-<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>NovaCart Admin</title><link rel="stylesheet" href="style.css"></head><body class="admin"><header><a class="logo" href="index.html">NOVA<span>CART</span> ADMIN</a><a href="index.html">Store ↗</a></header><main class="dashboard"><div id="login"><h1>Admin Login</h1><p>Use your Supabase admin email and password.</p><input id="email" type="email" placeholder="Email"><input id="password" type="password" placeholder="Password"><button id="loginBtn">Login</button><p id="loginMsg"></p></div><div id="panel" hidden><div class="dashhead"><div><small>CONTROL CENTER</small><h1>NovaCart 2.0</h1></div><button id="logout">Logout</button></div><div class="tabs"><button data-tab="site">Website</button><button data-tab="products">Products</button><button data-tab="posts">Posts</button><button data-tab="pages">Pages</button><button data-tab="ads">AdSense</button></div><section id="tab-site" class="tab"><h2>Website Editor</h2><form id="siteForm" class="admin-form"><input id="siteName" placeholder="Site name"><input id="tagline" placeholder="Tagline"><input id="logoUrl" placeholder="Logo URL"><input id="primaryColor" placeholder="Primary color"><input id="accentColor" placeholder="Accent color"><input id="heroTitle" placeholder="Hero title"><textarea id="heroText" placeholder="Hero text"></textarea><input id="heroButton" placeholder="Hero button"><input id="footerText" placeholder="Footer text"><input id="seoTitle" placeholder="SEO title"><textarea id="seoDescription" placeholder="SEO description"></textarea><button>Save Website</button></form></section><section id="tab-products" class="tab" hidden><h2>Products</h2><form id="productForm" class="admin-form"><input type="hidden" id="pid"><input id="pname" placeholder="Product name" required><input id="pcategory" placeholder="Category" required><input id="pprice" type="number" placeholder="Price" required><input id="pimage" placeholder="Image URL" required><input id="pbuy" placeholder="Buy / affiliate URL" required><textarea id="pdesc" placeholder="Description"></textarea><label><input id="pfeatured" type="checkbox"> Featured</label><div><button>Save product</button><button type="button" id="cancelProduct">Cancel</button></div></form><div id="adminProducts"></div></section><section id="tab-posts" class="tab" hidden><h2>Posts</h2><form id="postForm" class="admin-form"><input type="hidden" id="postId"><input id="postTitle" placeholder="Post title" required><input id="postSlug" placeholder="Slug e.g. best-gadgets" required><input id="postImage" placeholder="Cover image URL"><input id="postExcerpt" placeholder="Short excerpt"><textarea id="postContent" placeholder="Post content"></textarea><label><input id="postPublished" type="checkbox" checked> Published</label><div id="productChecks"></div><button>Save post</button><button type="button" id="cancelPost">Cancel</button></form><div id="adminPosts"></div></section><section id="tab-pages" class="tab" hidden><h2>Pages</h2><form id="pageForm" class="admin-form"><input type="hidden" id="pageId"><input id="pageTitle" placeholder="Page title"><input id="pageSlug" placeholder="about"><textarea id="pageContent" placeholder="Page content"></textarea><label><input id="pagePublished" type="checkbox" checked> Published</label><button>Save page</button></form><div id="adminPages"></div></section><section id="tab-ads" class="tab" hidden><h2>AdSense</h2><form id="adsForm" class="admin-form"><label><input id="adsEnabled" type="checkbox"> Enable AdSense</label><input id="publisherId" placeholder="ca-pub-xxxxxxxx"><input id="homeSlot" placeholder="Homepage ad slot"><input id="postSlot" placeholder="Post ad slot"><input id="productSlot" placeholder="Product ad slot"><p class="hint">AdSense requires Google approval. Only paste IDs supplied by your AdSense account.</p><button>Save AdSense</button></form></section></div></main><script type="module" src="admin.js"></script></body></html>
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>NovaCart Admin</title><link rel="stylesheet" href="style.css"></head>
+<body class="admin">
+<header><a class="logo" href="index.html">NOVA<span>CART</span> ADMIN</a><a href="index.html">Store ↗</a></header>
+<main class="dashboard">
+<div id="login"><h1>Admin Login</h1><p>Sign in with your Supabase admin account.</p>
+<input id="email" type="email" placeholder="Email"><input id="password" type="password" placeholder="Password">
+<button id="loginBtn">Login</button><p id="loginMsg"></p></div>
+<div id="panel" hidden>
+<div class="dashhead"><div><small>CONTROL CENTER</small><h1>NovaCart 2.0</h1></div><button id="logout">Logout</button></div>
+<div class="tabs">
+<button data-tab="site">Website</button><button data-tab="products">Products</button><button data-tab="posts">Posts</button>
+<button data-tab="pages">Pages</button><button data-tab="navigation">Navigation</button><button data-tab="ads">AdSense</button>
+</div>
+
+<section id="tab-site" class="tab"><h2>Website Editor</h2>
+<form id="siteForm" class="admin-form">
+<input id="siteName" placeholder="Site name"><input id="logoUrl" placeholder="Logo URL">
+<input id="faviconUrl" placeholder="Favicon URL">
+<input id="primaryColor" placeholder="Primary color"><input id="secondaryColor" placeholder="Secondary color">
+<input id="backgroundColor" placeholder="Background color"><input id="textColor" placeholder="Text color">
+<input id="heroTitle" placeholder="Hero title"><textarea id="heroText" placeholder="Hero subtitle"></textarea>
+<input id="heroButtonText" placeholder="Hero button text"><input id="heroButtonUrl" placeholder="Hero button URL">
+<input id="footerText" placeholder="Footer text"><input id="seoTitle" placeholder="SEO title">
+<textarea id="seoDescription" placeholder="SEO description"></textarea>
+<button>Save Website</button></form></section>
+
+<section id="tab-products" class="tab" hidden><h2>Products</h2>
+<form id="productForm" class="admin-form"><input type="hidden" id="pid">
+<input id="pname" placeholder="Product name" required><input id="pcategory" placeholder="Category" required>
+<input id="pprice" type="number" step="0.01" placeholder="Price" required><input id="pimage" placeholder="Image URL" required>
+<input id="pbuy" placeholder="Buy / affiliate URL" required><textarea id="pdesc" placeholder="Description"></textarea>
+<label><input id="pfeatured" type="checkbox"> Featured</label>
+<button>Save product</button><button type="button" id="cancelProduct">Cancel</button></form>
+<div id="adminProducts"></div></section>
+
+<section id="tab-posts" class="tab" hidden><h2>Posts</h2>
+<form id="postForm" class="admin-form"><input id="postTitle" placeholder="Post title" required>
+<input id="postSlug" placeholder="Slug e.g. best-gadgets" required><input id="postImage" placeholder="Cover image URL">
+<input id="postCategory" placeholder="Category"><input id="postExcerpt" placeholder="Short excerpt">
+<textarea id="postContent" placeholder="Post content"></textarea><label><input id="postPublished" type="checkbox" checked> Published</label>
+<div id="productChecks"></div><button>Save post</button><button type="button" id="cancelPost">Cancel</button></form>
+<div id="adminPosts"></div></section>
+
+<section id="tab-pages" class="tab" hidden><h2>Pages</h2>
+<form id="pageForm" class="admin-form"><input id="pageTitle" placeholder="Page title" required><input id="pageSlug" placeholder="about" required>
+<textarea id="pageContent" placeholder="Page content"></textarea><input id="pageMetaTitle" placeholder="Meta title">
+<textarea id="pageMetaDescription" placeholder="Meta description"></textarea><label><input id="pagePublished" type="checkbox" checked> Published</label>
+<button>Save page</button><button type="button" id="cancelPage">Cancel</button></form><div id="adminPages"></div></section>
+
+<section id="tab-navigation" class="tab" hidden><h2>Navigation</h2>
+<form id="navForm" class="admin-form"><input id="navLabel" placeholder="Label" required><input id="navUrl" placeholder="URL" required>
+<select id="navLocation"><option value="header">Header</option><option value="footer">Footer</option></select>
+<input id="navOrder" type="number" value="0"><label><input id="navVisible" type="checkbox" checked> Visible</label>
+<button>Save link</button><button type="button" id="cancelNav">Cancel</button></form><div id="adminNavigation"></div></section>
+
+<section id="tab-ads" class="tab" hidden><h2>AdSense</h2>
+<form id="adsForm" class="admin-form"><label><input id="adsEnabled" type="checkbox"> Enable AdSense</label>
+<input id="publisherId" placeholder="ca-pub-xxxxxxxx"><input id="homeSlot" placeholder="Homepage ad slot">
+<input id="postSlot" placeholder="Post ad slot"><input id="productSlot" placeholder="Product ad slot">
+<label><input id="showHomeAds" type="checkbox"> Show homepage ads</label>
+<label><input id="showPostAds" type="checkbox"> Show post ads</label>
+<label><input id="showProductAds" type="checkbox"> Show product ads</label>
+<p class="hint">AdSense requires Google approval and compliant placements.</p><button>Save AdSense</button></form></section>
+</div></main><script type="module" src="admin.js"></script></body></html>
