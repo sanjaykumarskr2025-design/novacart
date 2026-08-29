@@ -1,15 +1,649 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>NovaCart Admin</title><link rel="stylesheet" href="style.css"></head>
-<body class="admin"><header><a class="logo" href="index.html">NOVA<span>CART</span> ADMIN</a><a href="index.html">Store ↗</a></header>
-<main class="dashboard">
-<div id="login"><h1>Admin Login</h1><p>Sign in with your Supabase admin account.</p><input id="email" type="email" placeholder="Email"><input id="password" type="password" placeholder="Password"><button id="loginBtn">Login</button><p id="loginMsg"></p></div>
-<div id="panel" hidden>
-<div class="dashhead"><div><small>CONTROL CENTER</small><h1>NovaCart 3.0</h1></div><button id="logout">Logout</button></div>
-<div class="tabs"><button data-tab="site">Website</button><button data-tab="products">Products</button><button data-tab="posts">Posts + Products</button><button data-tab="navigation">Navigation</button><button data-tab="ads">AdSense</button></div>
-<section id="tab-site" class="tab"><h2>Website Editor</h2><form id="siteForm" class="admin-form">
-<input id="siteName" placeholder="Site name"><input id="logoUrl" placeholder="Logo URL"><input id="faviconUrl" placeholder="Favicon URL"><input id="primaryColor" placeholder="Primary color"><input id="secondaryColor" placeholder="Secondary color"><input id="backgroundColor" placeholder="Background color"><input id="textColor" placeholder="Text color"><input id="heroTitle" placeholder="Hero title"><textarea id="heroText" placeholder="Hero subtitle"></textarea><input id="heroButtonText" placeholder="Hero button text"><input id="heroButtonUrl" placeholder="Hero button URL"><input id="footerText" placeholder="Footer text"><input id="seoTitle" placeholder="SEO title"><textarea id="seoDescription" placeholder="SEO description"></textarea><button>Save Website</button></form></section>
-<section id="tab-products" class="tab" hidden><h2>Products</h2><form id="productForm" class="admin-form"><input type="hidden" id="pid"><input id="pname" placeholder="Product name" required><input id="pcategory" placeholder="Category" required><input id="pprice" type="number" step="0.01" placeholder="Price" required><input id="pimage" placeholder="Image URL" required><input id="pbuy" placeholder="Buy / affiliate URL" required><textarea id="pdesc" placeholder="Description"></textarea><label><input id="pfeatured" type="checkbox"> Featured</label><button>Save Product</button><button type="button" id="cancelProduct">Cancel</button></form><div id="adminProducts"></div></section>
-<section id="tab-posts" class="tab" hidden><h2>Posts + Products</h2><p class="hint">Create a post and select the products that should appear inside that post. Both are saved together.</p><form id="postForm" class="admin-form"><input id="postTitle" placeholder="Post title" required><input id="postSlug" placeholder="Slug e.g. best-gadgets" required><input id="postImage" placeholder="Cover image URL"><input id="postCategory" placeholder="Category"><input id="postExcerpt" placeholder="Short excerpt"><textarea id="postContent" placeholder="Post content"></textarea><label><input id="postPublished" type="checkbox" checked> Published</label><div id="productChecks"></div><button>Save Post + Products</button><button type="button" id="cancelPost">Cancel</button></form><div id="adminPosts"></div></section>
-<section id="tab-navigation" class="tab" hidden><h2>Navigation</h2><form id="navForm" class="admin-form"><input id="navLabel" placeholder="Label" required><input id="navUrl" placeholder="URL" required><select id="navLocation"><option value="header">Header</option><option value="footer">Footer</option></select><input id="navOrder" type="number" value="0"><label><input id="navVisible" type="checkbox" checked> Visible</label><button>Save Link</button><button type="button" id="cancelNav">Cancel</button></form><div id="adminNavigation"></div></section>
-<section id="tab-ads" class="tab" hidden><h2>AdSense</h2><form id="adsForm" class="admin-form"><label><input id="adsEnabled" type="checkbox"> Enable AdSense</label><input id="publisherId" placeholder="ca-pub-xxxxxxxx"><input id="homeSlot" placeholder="Homepage ad slot"><input id="postSlot" placeholder="Post ad slot"><input id="productSlot" placeholder="Product ad slot"><label><input id="showHomeAds" type="checkbox"> Show homepage ads</label><label><input id="showPostAds" type="checkbox"> Show post ads</label><label><input id="showProductAds" type="checkbox"> Show product ads</label><p class="hint">AdSense requires Google approval. Keep ads disabled until your site is approved.</p><button>Save AdSense</button></form></section>
-</div></main><script type="module" src="admin.js"></script></body></html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+
+  <title>NovaCart Admin</title>
+
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body class="admin">
+
+  <!-- HEADER -->
+  <header>
+
+    <a class="logo" href="index.html">
+      NOVA<span>CART</span> ADMIN
+    </a>
+
+    <a href="index.html">
+      Store ↗
+    </a>
+
+  </header>
+
+
+  <main class="dashboard">
+
+    <!-- ================= LOGIN ================= -->
+
+    <div id="login">
+
+      <h1>Admin Login</h1>
+
+      <p>
+        Login with your NovaCart admin account.
+      </p>
+
+      <input
+        id="email"
+        type="email"
+        placeholder="Email"
+        autocomplete="email"
+      >
+
+      <input
+        id="password"
+        type="password"
+        placeholder="Password"
+        autocomplete="current-password"
+      >
+
+      <button id="loginBtn">
+        Login
+      </button>
+
+      <p id="loginMsg"></p>
+
+    </div>
+
+
+    <!-- ================= ADMIN PANEL ================= -->
+
+    <div id="panel" hidden>
+
+      <div class="dashhead">
+
+        <div>
+
+          <small>
+            CONTROL CENTER
+          </small>
+
+          <h1>
+            NovaCart 3.0
+          </h1>
+
+        </div>
+
+        <button id="logout">
+          Logout
+        </button>
+
+      </div>
+
+
+      <!-- ================= TABS ================= -->
+
+      <div class="tabs">
+
+        <button data-tab="site">
+          Website
+        </button>
+
+        <button data-tab="products">
+          Products
+        </button>
+
+        <button data-tab="posts">
+          Posts + Products
+        </button>
+
+        <button data-tab="navigation">
+          Navigation
+        </button>
+
+        <button data-tab="ads">
+          AdSense
+        </button>
+
+      </div>
+
+
+      <!-- ==================================================
+           WEBSITE
+      ================================================== -->
+
+      <section
+        id="tab-site"
+        class="tab"
+      >
+
+        <h2>
+          Website Editor
+        </h2>
+
+        <p class="hint">
+          Edit the main website content from here.
+        </p>
+
+
+        <form
+          id="siteForm"
+          class="admin-form"
+        >
+
+          <input
+            id="siteName"
+            placeholder="Site name"
+          >
+
+          <input
+            id="tagline"
+            placeholder="Tagline"
+          >
+
+          <input
+            id="logoUrl"
+            placeholder="Logo URL"
+          >
+
+          <input
+            id="primaryColor"
+            placeholder="Primary color"
+          >
+
+          <input
+            id="accentColor"
+            placeholder="Accent color"
+          >
+
+          <input
+            id="heroTitle"
+            placeholder="Hero title"
+          >
+
+          <textarea
+            id="heroText"
+            placeholder="Hero text"
+          ></textarea>
+
+          <input
+            id="heroButton"
+            placeholder="Hero button text"
+          >
+
+          <input
+            id="footerText"
+            placeholder="Footer text"
+          >
+
+          <input
+            id="seoTitle"
+            placeholder="SEO title"
+          >
+
+          <textarea
+            id="seoDescription"
+            placeholder="SEO description"
+          ></textarea>
+
+
+          <button type="submit">
+            Save Website
+          </button>
+
+          <p
+            id="siteMsg"
+            class="hint"
+          ></p>
+
+        </form>
+
+      </section>
+
+
+      <!-- ==================================================
+           PRODUCTS
+      ================================================== -->
+
+      <section
+        id="tab-products"
+        class="tab"
+        hidden
+      >
+
+        <h2>
+          Products
+        </h2>
+
+        <p class="hint">
+          Add, edit or delete products.
+        </p>
+
+
+        <form
+          id="productForm"
+          class="admin-form"
+        >
+
+          <input
+            type="hidden"
+            id="pid"
+          >
+
+
+          <input
+            id="pname"
+            placeholder="Product name"
+            required
+          >
+
+
+          <input
+            id="pcategory"
+            placeholder="Category"
+            required
+          >
+
+
+          <input
+            id="pprice"
+            type="number"
+            min="0"
+            placeholder="Price"
+            required
+          >
+
+
+          <input
+            id="pimage"
+            placeholder="Product image URL"
+            required
+          >
+
+
+          <input
+            id="pbuy"
+            placeholder="Buy / Affiliate URL"
+            required
+          >
+
+
+          <textarea
+            id="pdesc"
+            placeholder="Product description"
+          ></textarea>
+
+
+          <label>
+
+            <input
+              id="pfeatured"
+              type="checkbox"
+            >
+
+            Featured product
+
+          </label>
+
+
+          <div>
+
+            <button type="submit">
+              Save Product
+            </button>
+
+            <button
+              type="button"
+              id="cancelProduct"
+            >
+              Cancel
+            </button>
+
+          </div>
+
+
+          <p
+            id="productMsg"
+            class="hint"
+          ></p>
+
+        </form>
+
+
+        <hr>
+
+
+        <h3>
+          Product List
+        </h3>
+
+        <div id="adminProducts"></div>
+
+      </section>
+
+
+      <!-- ==================================================
+           POSTS + PRODUCTS
+      ================================================== -->
+
+      <section
+        id="tab-posts"
+        class="tab"
+        hidden
+      >
+
+        <h2>
+          Posts + Products
+        </h2>
+
+        <p class="hint">
+          Create a post and select the products that belong to
+          that post.
+        </p>
+
+
+        <form
+          id="postForm"
+          class="admin-form"
+        >
+
+          <input
+            type="hidden"
+            id="postId"
+          >
+
+
+          <input
+            id="postTitle"
+            placeholder="Post title"
+            required
+          >
+
+
+          <input
+            id="postSlug"
+            placeholder="Slug e.g. best-gadgets"
+            required
+          >
+
+
+          <input
+            id="postImage"
+            placeholder="Cover image URL"
+          >
+
+
+          <input
+            id="postExcerpt"
+            placeholder="Short excerpt"
+          >
+
+
+          <textarea
+            id="postContent"
+            placeholder="Post content"
+          ></textarea>
+
+
+          <label>
+
+            <input
+              id="postPublished"
+              type="checkbox"
+              checked
+            >
+
+            Published
+
+          </label>
+
+
+          <!-- RELATED PRODUCTS -->
+
+          <div class="related-products">
+
+            <h3>
+              Products for this Post
+            </h3>
+
+            <p class="hint">
+              Select one or more products.
+            </p>
+
+            <div
+              id="productChecks"
+            ></div>
+
+          </div>
+
+
+          <div>
+
+            <button type="submit">
+              Save Post + Products
+            </button>
+
+            <button
+              type="button"
+              id="cancelPost"
+            >
+              Cancel
+            </button>
+
+          </div>
+
+
+          <p
+            id="postMsg"
+            class="hint"
+          ></p>
+
+        </form>
+
+
+        <hr>
+
+
+        <h3>
+          Post List
+        </h3>
+
+        <div id="adminPosts"></div>
+
+      </section>
+
+
+      <!-- ==================================================
+           NAVIGATION
+      ================================================== -->
+
+      <section
+        id="tab-navigation"
+        class="tab"
+        hidden
+      >
+
+        <h2>
+          Navigation Editor
+        </h2>
+
+        <p class="hint">
+          Manage the links shown on your website.
+        </p>
+
+
+        <form
+          id="navigationForm"
+          class="admin-form"
+        >
+
+          <input
+            type="hidden"
+            id="navId"
+          >
+
+
+          <input
+            id="navLabel"
+            placeholder="Menu name"
+            required
+          >
+
+
+          <input
+            id="navUrl"
+            placeholder="URL e.g. #products"
+            required
+          >
+
+
+          <input
+            id="navOrder"
+            type="number"
+            placeholder="Order"
+            value="0"
+          >
+
+
+          <label>
+
+            <input
+              id="navVisible"
+              type="checkbox"
+              checked
+            >
+
+            Visible
+
+          </label>
+
+
+          <div>
+
+            <button type="submit">
+              Save Navigation
+            </button>
+
+            <button
+              type="button"
+              id="cancelNavigation"
+            >
+              Cancel
+            </button>
+
+          </div>
+
+
+          <p
+            id="navigationMsg"
+            class="hint"
+          ></p>
+
+        </form>
+
+
+        <hr>
+
+
+        <h3>
+          Navigation List
+        </h3>
+
+        <div id="adminNavigation"></div>
+
+      </section>
+
+
+      <!-- ==================================================
+           ADSENSE
+      ================================================== -->
+
+      <section
+        id="tab-ads"
+        class="tab"
+        hidden
+      >
+
+        <h2>
+          Google AdSense
+        </h2>
+
+        <p class="hint">
+          AdSense requires Google approval before ads can
+          actually be served.
+        </p>
+
+
+        <form
+          id="adsForm"
+          class="admin-form"
+        >
+
+          <label>
+
+            <input
+              id="adsEnabled"
+              type="checkbox"
+            >
+
+            Enable AdSense
+
+          </label>
+
+
+          <input
+            id="publisherId"
+            placeholder="ca-pub-xxxxxxxxxxxxxxxx"
+          >
+
+
+          <input
+            id="homeSlot"
+            placeholder="Homepage ad slot"
+          >
+
+
+          <input
+            id="postSlot"
+            placeholder="Post ad slot"
+          >
+
+
+          <input
+            id="productSlot"
+            placeholder="Product ad slot"
+          >
+
+
+          <button type="submit">
+            Save AdSense
+          </button>
+
+
+          <p
+            id="adsMsg"
+            class="hint"
+          ></p>
+
+        </form>
+
+      </section>
+
+    </div>
+
+  </main>
+
+
+  <script
+    type="module"
+    src="admin.js"
+  ></script>
+
+</body>
+
+</html>
