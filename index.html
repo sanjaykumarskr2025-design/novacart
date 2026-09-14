@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NovaCart — Future of E-Commerce & Premium Tech Dropshipping</title>
+    <meta name="description" content="Discover futuristic technology, smart accessories, and premium dropshipping products delivered worldwide with 3D immersive shopping.">
+    <link rel="icon" type="image/svg+xml" href="assets/icons/favicon.svg">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#0a0b10">
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="NovaCart — Future of E-Commerce">
+    <meta property="og:description" content="Immersive 3D shopping and premium dropshipping marketplace.">
+    <meta property="og:type" content="website">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    <link rel="stylesheet" href="css/animations.css">
+    <link rel="stylesheet" href="css/3d.css">
+    <link rel="stylesheet" href="css/accessibility.css">
+
+    <!-- CDN Libraries (Pinned versions) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <script type="module" src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.8/dist/umd/supabase.js"></script>
+</head>
+<body>
+    <!-- Skip to content -->
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+
+    <!-- Loading Screen -->
+    <div id="loading-screen" class="loading-screen">
+        <div class="loading-content">
+            <div class="loading-logo-3d" id="loading-logo-canvas"></div>
+            <h1 class="loading-title">NOVACART</h1>
+            <div class="loading-bar-container">
+                <div class="loading-bar" id="loading-bar"></div>
+            </div>
+            <p class="loading-subtitle">Initializing Immersive Experience...</p>
+        </div>
+    </div>
+
+    <!-- Notification Toast Container -->
+    <div id="toast-container" class="toast-container" aria-live="polite"></div>
+
+    <!-- Search Overlay -->
+    <div id="search-overlay" class="search-overlay" aria-hidden="true">
+        <div class="search-overlay-backdrop"></div>
+        <div class="search-overlay-content">
+            <div class="search-header">
+                <div class="search-input-wrapper">
+                    <svg class="search-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                    <input type="text" id="global-search-input" placeholder="Search smart tech, wearables, accessories..." autocomplete="off">
+                </div>
+                <button id="search-close-btn" class="icon-btn" aria-label="Close search">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+                </button>
+            </div>
+            <div class="search-suggestions">
+                <h4>Popular Searches</h4>
+                <div class="tag-cloud">
+                    <span class="search-tag" data-query="Smart Lamp">Smart Lamp</span>
+                    <span class="search-tag" data-query="Portable Blender">Portable Blender</span>
+                    <span class="search-tag" data-query="Wireless Charger">Wireless Charger</span>
+                    <span class="search-tag" data-query="Mini Projector">Mini Projector</span>
+                    <span class="search-tag" data-query="RGB Light">RGB Light</span>
+                </div>
+            </div>
+            <div id="search-results-container" class="search-results-grid"></div>
+        </div>
+    </div>
+
+    <!-- Cart Drawer -->
+    <div id="cart-drawer" class="cart-drawer" aria-hidden="true">
+        <div class="cart-backdrop"></div>
+        <div class="cart-panel">
+            <div class="cart-header">
+                <h3>Your Shopping Cart (<span id="cart-item-count">0</span>)</h3>
+                <button id="cart-close-btn" class="icon-btn" aria-label="Close cart">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+                </button>
+            </div>
+            <div id="cart-items-container" class="cart-items-list">
+                <!-- Dynamically populated -->
+            </div>
+            <div class="cart-footer">
+                <div class="cart-coupon-section">
+                    <div class="coupon-input-group">
+                        <input type="text" id="cart-coupon-input" placeholder="Promo code (e.g. NOVA10)">
+                        <button id="apply-coupon-btn" class="btn-secondary">Apply</button>
+                    </div>
+                </div>
+                <div class="cart-summary-row">
+                    <span>Subtotal</span>
+                    <span id="cart-subtotal">₹0.00</span>
+                </div>
+                <div class="cart-summary-row discount-row" id="cart-discount-wrapper" style="display: none;">
+                    <span>Discount (<span id="coupon-code-label"></span>)</span>
+                    <span id="cart-discount-amount">-₹0.00</span>
+                </div>
+                <div class="cart-summary-row">
+                    <span>Estimated Shipping</span>
+                    <span id="cart-shipping">FREE</span>
+                </div>
+                <div class="cart-summary-row total-row">
+                    <span>Total</span>
+                    <span id="cart-total">₹0.00</span>
+                </div>
+                <div class="cart-actions">
+                    <a href="cart.html" class="btn btn-secondary">View Full Cart</a>
+                    <a href="checkout.html" class="btn btn-primary" id="checkout-btn">Proceed to Checkout</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <header class="header" id="header">
+        <div class="container header-container">
+            <div class="mobile-menu-toggle" id="mobile-menu-toggle" aria-label="Toggle navigation menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+
+            <a href="index.html" class="logo">
+                <div class="logo-mark">N</div>
+                <span class="logo-text">NOVACART</span>
+            </a>
+
+            <nav class="nav-menu" id="nav-menu">
+                <ul class="nav-list">
+                    <li><a href="index.html" class="nav-link active">Home</a></li>
+                    <li><a href="shop.html" class="nav-link">Shop</a></li>
+                    <li class="dropdown">
+                        <a href="shop.html" class="nav-link dropdown-toggle">Categories <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg></a>
+                        <div class="dropdown-menu" id="nav-categories-dropdown">
+                            <!-- Dynamically loaded -->
+                        </div>
+                    </li>
+                    <li><a href="shop.html?filter=deals" class="nav-link highlight-deal">Deals</a></li>
+                    <li><a href="about.html" class="nav-link">About</a></li>
+                    <li><a href="contact.html" class="nav-link">Contact</a></li>
+                </ul>
+            </nav>
+
+            <div class="header-actions">
+                <button id="search-trigger-btn" class="icon-btn" aria-label="Search">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                </button>
+                <a href="wishlist.html" class="icon-btn wishlist-btn" aria-label="Wishlist">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
+                    <span class="badge" id="wishlist-badge">0</span>
+                </a>
+                <a href="account.html" class="icon-btn account-btn" aria-label="Account">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                </a>
+                <button id="cart-trigger-btn" class="icon-btn cart-btn" aria-label="Shopping Cart">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg>
+                    <span class="badge" id="cart-badge">0</span>
+                </button>
+                <button id="theme-toggle-btn" class="icon-btn theme-toggle" aria-label="Toggle Theme">
+                    <svg class="sun-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>
+                    <svg class="moon-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main id="main-content">
+        <!-- Hero Section with 3D Canvas -->
+        <section class="hero-section" id="hero">
+            <div class="hero-3d-container" id="hero-3d-container"></div>
+            <div class="container hero-content-container">
+                <div class="hero-badge animate-on-load">
+                    <span class="pulse-dot"></span> Next-Gen Dropshipping & Tech
+                </div>
+                <h1 class="hero-title animate-on-load">Discover What's <span class="gradient-text">Next.</span></h1>
+                <p class="hero-subtitle animate-on-load">Premium futuristic technology, smart wearables, and lifestyle accessories engineered for modern living and delivered globally.</p>
+                <div class="hero-actions animate-on-load">
+                    <a href="shop.html" class="btn btn-primary btn-glow">Explore Products</a>
+                    <a href="shop.html?filter=deals" class="btn btn-secondary">View Deals</a>
+                </div>
+                <div class="hero-features animate-on-load">
+                    <div class="hero-feature-item">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                        <span>Global Express Shipping</span>
+                    </div>
+                    <div class="hero-feature-item">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                        <span>Secure Encrypted Checkout</span>
+                    </div>
+                    <div class="hero-feature-item">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+                        <span>Live Supplier Tracking</span>
+                    </div>
+                </div>
+            </div>
+            <div class="hero-scroll-indicator">
+                <div class="mouse">
+                    <div class="wheel"></div>
+                </div>
+                <span>Scroll to Discover</span>
+            </div>
+        </section>
+
+        <!-- Categories Grid Section -->
+        <section class="section categories-section">
+            <div class="container">
+                <div class="section-header text-center">
+                    <h2 class="section-title">Shop by Category</h2>
+                    <p class="section-subtitle">Curated collections designed to upgrade your daily routine.</p>
+                </div>
+                <div class="categories-grid" id="categories-grid-container">
+                    <!-- Dynamically populated or rendered via demo data -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Featured Products Section -->
+        <section class="section products-section">
+            <div class="container">
+                <div class="section-header flex-between">
+                    <div>
+                        <h2 class="section-title">Featured Innovations</h2>
+                        <p class="section-subtitle">Top-rated dropshipping tech selected for quality and performance.</p>
+                    </div>
+                    <a href="shop.html" class="btn btn-text">View All Products <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></a>
+                </div>
+                <div class="products-grid" id="featured-products-container">
+                    <!-- Skeleton loaders initially -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Immersive Banner Section -->
+        <section class="section promo-banner-section">
+            <div class="container">
+                <div class="promo-banner-card glass-panel">
+                    <div class="promo-content">
+                        <span class="badge badge-accent">Limited Time Offer</span>
+                        <h2>Nova Ambient RGB Ecosystem</h2>
+                        <p>Sync your entire workspace with intelligent ambient lighting controlled directly from your smart devices.</p>
+                        <a href="shop.html?category=smart-lighting" class="btn btn-primary">Claim 25% Off</a>
+                    </div>
+                    <div class="promo-visual">
+                        <div class="promo-glow"></div>
+                        <div class="promo-3d-badge">PRO</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Trending Products Section -->
+        <section class="section products-section">
+            <div class="container">
+                <div class="section-header text-center">
+                    <h2 class="section-title">Trending Worldwide</h2>
+                    <p class="section-subtitle">Best-sellers currently shipping to over 120 countries.</p>
+                </div>
+                <div class="products-grid" id="trending-products-container">
+                    <!-- Dynamically populated -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Features / Trust Section -->
+        <section class="section trust-section">
+            <div class="container">
+                <div class="trust-grid">
+                    <div class="trust-card glass-panel">
+                        <div class="trust-icon">
+                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                        </div>
+                        <h3>Automated Global Fulfillment</h3>
+                        <p>Direct supplier synchronization ensures your orders are processed and shipped within 24 hours.</p>
+                    </div>
+                    <div class="trust-card glass-panel">
+                        <div class="trust-icon">
+                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="20" height="14" x="2" y="5" rx="2"/><path d="M2 10h20"/></svg>
+                        </div>
+                        <h3>Secure Multi-Currency Payments</h3>
+                        <p>Powered by enterprise-grade SSL with Stripe, Razorpay, and encrypted card processing.</p>
+                    </div>
+                    <div class="trust-card glass-panel">
+                        <div class="trust-icon">
+                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                        </div>
+                        <h3>Buyer Protection & Support</h3>
+                        <p>30-day money-back guarantee and dedicated customer care available 24/7.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Newsletter Section -->
+        <section class="section newsletter-section">
+            <div class="container">
+                <div class="newsletter-card glass-panel text-center">
+                    <h2>Join the Nova Innovators Club</h2>
+                    <p>Subscribe to receive early access to drops, secret discount codes, and tech dropshipping insights.</p>
+                    <form id="newsletter-form" class="newsletter-form">
+                        <input type="email" id="newsletter-email" placeholder="Enter your email address" required>
+                        <button type="submit" class="btn btn-primary">Subscribe</button>
+                    </form>
+                    <div id="newsletter-success" class="success-message" style="display: none;">Thank you for subscribing! Check your inbox for your 15% discount code.</div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-col">
+                    <a href="index.html" class="logo">
+                        <div class="logo-mark">N</div>
+                        <span class="logo-text">NOVACART</span>
+                    </a>
+                    <p class="footer-desc">The future of intelligent dropshipping and premium technology retail.</p>
+                    <div class="social-links">
+                        <a href="#" aria-label="Twitter"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 4s-.7 2.1-2 3.4c1.6 10-9.4 17.3-18 11.6 2.2.1 4.4-.6 6-2C3 15.5.5 9.6 3 5c2.2 2.6 5.6 4.1 9 4-.9-4.2 4-6.6 7-3.8 1.1 0 3-1.2 3-1.2z"/></svg></a>
+                        <a href="#" aria-label="Instagram"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></svg></a>
+                        <a href="#" aria-label="Github"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/><path d="M9 18c-4.51 2-5-2-7-2"/></svg></a>
+                    </div>
+                </div>
+                <div class="footer-col">
+                    <h4>Shop</h4>
+                    <ul>
+                        <li><a href="shop.html">All Products</a></li>
+                        <li><a href="shop.html?category=smart-lighting">Smart Lighting</a></li>
+                        <li><a href="shop.html?category=audio">Immersive Audio</a></li>
+                        <li><a href="shop.html?category=power">Power & Chargers</a></li>
+                        <li><a href="shop.html?filter=deals">Special Deals</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Customer Care</h4>
+                    <ul>
+                        <li><a href="account.html">My Account</a></li>
+                        <li><a href="orders.html">Order Tracking</a></li>
+                        <li><a href="wishlist.html">Wishlist</a></li>
+                        <li><a href="faq.html">FAQ & Help</a></li>
+                        <li><a href="contact.html">Contact Us</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Legal & Company</h4>
+                    <ul>
+                        <li><a href="about.html">About NovaCart</a></li>
+                        <li><a href="privacy.html">Privacy Policy</a></li>
+                        <li><a href="terms.html">Terms & Conditions</a></li>
+                        <li><a href="shipping.html">Shipping Policy</a></li>
+                        <li><a href="refunds.html">Refund Policy</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 NovaCart. All rights reserved. Powered by Supabase & GitHub Pages.</p>
+                <div class="footer-badges">
+                    <span class="security-badge">🔒 SSL Secured</span>
+                    <span class="demo-badge">Demo Mode Active</span>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="js/config.js"></script>
+    <script src="js/supabase.js"></script>
+    <script src="js/notifications.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/cart.js"></script>
+    <script src="js/wishlist.js"></script>
+    <script src="js/search.js"></script>
+    <script src="js/theme.js"></script>
+    <script src="js/3d/hero3d.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>

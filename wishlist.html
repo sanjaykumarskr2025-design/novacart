@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wishlist — NovaCart</title>
+    <link rel="icon" type="image/svg+xml" href="assets/icons/favicon.svg">
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    <link rel="stylesheet" href="css/accessibility.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div id="toast-container" class="toast-container" aria-live="polite"></div>
+
+    <header class="header scrolled" id="header">
+        <div class="container header-container">
+            <a href="index.html" class="logo">
+                <div class="logo-mark">N</div>
+                <span class="logo-text">NOVACART</span>
+            </a>
+            <nav class="nav-menu">
+                <ul class="nav-list">
+                    <li><a href="index.html" class="nav-link">Home</a></li>
+                    <li><a href="shop.html" class="nav-link">Shop</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="main-content" style="padding-top: 120px; padding-bottom: 5rem;">
+        <div class="container">
+            <h1 style="font-family: var(--font-heading); font-size: 2.5rem; margin-bottom: 2rem;">My Wishlist</h1>
+            <div class="products-grid" id="wishlist-products-grid">
+                <!-- Dynamically populated -->
+            </div>
+        </div>
+    </main>
+
+    <script src="js/config.js"></script>
+    <script src="js/supabase.js"></script>
+    <script src="js/notifications.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/cart.js"></script>
+    <script src="js/wishlist.js"></script>
+    <script src="js/theme.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const grid = document.getElementById('wishlist-products-grid');
+            if (!grid) return;
+
+            if (Wishlist.items.length === 0) {
+                grid.innerHTML = `<p style="grid-column: 1/-1; text-align: center; color: var(--text-secondary); padding: 4rem;">Your wishlist is empty.</p>`;
+                return;
+            }
+
+            grid.innerHTML = Wishlist.items.map(item => `
+                <div class="product-card">
+                    <div class="product-image-wrapper">
+                        <img src="${item.image_url}" alt="${item.name}" class="product-image">
+                    </div>
+                    <div class="product-content">
+                        <div class="product-category">${item.category}</div>
+                        <h3 class="product-title">${item.name}</h3>
+                        <div class="product-footer">
+                            <span class="current-price">${Utils.formatCurrency(item.price)}</span>
+                            <button class="btn btn-primary" style="padding: 0.5rem 1rem; font-size: 0.85rem;" onclick='Cart.addItem(${JSON.stringify(item).replace(/"/g, "&quot;")})'>Add to Cart</button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        });
+    </script>
+</body>
+</html>

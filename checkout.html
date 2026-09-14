@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secure Checkout — NovaCart</title>
+    <link rel="icon" type="image/svg+xml" href="assets/icons/favicon.svg">
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    <link rel="stylesheet" href="css/accessibility.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+    <script type="module" src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.8/dist/umd/supabase.js"></script>
+</head>
+<body>
+    <div id="toast-container" class="toast-container" aria-live="polite"></div>
+
+    <header class="header scrolled" id="header">
+        <div class="container header-container">
+            <a href="index.html" class="logo">
+                <div class="logo-mark">N</div>
+                <span class="logo-text">NOVACART</span>
+            </a>
+            <span style="font-size: 0.85rem; color: var(--accent-success); font-weight: 600;">🔒 256-Bit Encrypted Secure Checkout</span>
+        </div>
+    </header>
+
+    <main class="main-content" style="padding-top: 120px; padding-bottom: 5rem;">
+        <div class="container">
+            <h1 style="font-family: var(--font-heading); font-size: 2.25rem; margin-bottom: 2rem;">Checkout</h1>
+
+            <div style="display: grid; grid-template-columns: 1fr 400px; gap: 2.5rem;">
+                <!-- Checkout Form -->
+                <div class="glass-panel" style="padding: 2.5rem;">
+                    <h3 style="font-family: var(--font-heading); font-size: 1.25rem; margin-bottom: 1.5rem;">1. Shipping & Contact Information</h3>
+                    <form id="checkout-form" style="display: flex; flex-direction: column; gap: 1.25rem;">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                            <div>
+                                <label style="display: block; font-size: 0.85rem; margin-bottom: 0.5rem; color: var(--text-secondary);">Full Name</label>
+                                <input type="text" id="shipping-name" required placeholder="Sanjay Kumar" style="width: 100%; padding: 0.75rem; background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: var(--radius-sm); color: var(--text-primary);">
+                            </div>
+                            <div>
+                                <label style="display: block; font-size: 0.85rem; margin-bottom: 0.5rem; color: var(--text-secondary);">Email Address</label>
+                                <input type="email" id="shipping-email" required placeholder="sanjay@example.com" style="width: 100%; padding: 0.75rem; background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: var(--radius-sm); color: var(--text-primary);">
+                            </div>
+                        </div>
+                        <div>
+                            <label style="display: block; font-size: 0.85rem; margin-bottom: 0.5rem; color: var(--text-secondary);">Street Address</label>
+                            <input type="text" id="shipping-address" required placeholder="123 Innovation Avenue, Tech Park" style="width: 100%; padding: 0.75rem; background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: var(--radius-sm); color: var(--text-primary);">
+                        </div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem;">
+                            <div>
+                                <label style="display: block; font-size: 0.85rem; margin-bottom: 0.5rem; color: var(--text-secondary);">City</label>
+                                <input type="text" id="shipping-city" required placeholder="Bangalore" style="width: 100%; padding: 0.75rem; background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: var(--radius-sm); color: var(--text-primary);">
+                            </div>
+                            <div>
+                                <label style="display: block; font-size: 0.85rem; margin-bottom: 0.5rem; color: var(--text-secondary);">State / Province</label>
+                                <input type="text" id="shipping-state" required placeholder="Karnataka" style="width: 100%; padding: 0.75rem; background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: var(--radius-sm); color: var(--text-primary);">
+                            </div>
+                            <div>
+                                <label style="display: block; font-size: 0.85rem; margin-bottom: 0.5rem; color: var(--text-secondary);">Postal Code</label>
+                                <input type="text" id="shipping-zip" required placeholder="560001" style="width: 100%; padding: 0.75rem; background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: var(--radius-sm); color: var(--text-primary);">
+                            </div>
+                        </div>
+
+                        <h3 style="font-family: var(--font-heading); font-size: 1.25rem; margin-top: 1.5rem; margin-bottom: 1rem;">2. Payment Method</h3>
+                        <div style="display: flex; gap: 1rem; margin-bottom: 1.5rem;">
+                            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                                <input type="radio" name="payment-method" value="razorpay" checked> Razorpay / UPI / Cards
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                                <input type="radio" name="payment-method" value="stripe"> Stripe Secure
+                            </label>
+                            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                                <input type="radio" name="payment-method" value="cod"> Cash on Delivery
+                            </label>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary" style="padding: 1rem; font-size: 1rem; margin-top: 1rem;">Complete Secure Order</button>
+                    </form>
+                </div>
+
+                <!-- Order Summary Sidebar -->
+                <div class="glass-panel" style="padding: 2rem; height: fit-content;">
+                    <h3 style="font-family: var(--font-heading); font-size: 1.25rem; margin-bottom: 1.5rem;">Order Summary</h3>
+                    <div id="checkout-items-list" style="max-height: 250px; overflow-y: auto; margin-bottom: 1.5rem;">
+                        <!-- Dynamically populated -->
+                    </div>
+                    <div class="cart-summary-row" style="display: flex; justify-content: space-between; margin-bottom: 0.75rem;">
+                        <span>Subtotal</span>
+                        <span id="checkout-subtotal">₹0.00</span>
+                    </div>
+                    <div class="cart-summary-row" style="display: flex; justify-content: space-between; margin-bottom: 0.75rem;">
+                        <span>Shipping</span>
+                        <span>FREE</span>
+                    </div>
+                    <div class="cart-summary-row total-row" style="display: flex; justify-content: space-between; font-size: 1.25rem; font-weight: 700; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--border-color);">
+                        <span>Total</span>
+                        <span id="checkout-total">₹0.00</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="js/config.js"></script>
+    <script src="js/supabase.js"></script>
+    <script src="js/notifications.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/cart.js"></script>
+    <script>
+        const CheckoutApp = {
+            init() {
+                this.renderSummary();
+                this.bindEvents();
+            },
+
+            renderSummary() {
+                const container = document.getElementById('checkout-items-list');
+                if (!container) return;
+
+                if (Cart.items.length === 0) {
+                    container.innerHTML = `<p style="color: var(--text-secondary);">Your cart is empty.</p>`;
+                    return;
+                }
+
+                container.innerHTML = Cart.items.map(item => `
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; font-size: 0.9rem;">
+                        <div>${item.name} (x${item.quantity})</div>
+                        <div style="font-weight: 600;">${Utils.formatCurrency(item.price * item.quantity)}</div>
+                    </div>
+                `).join('');
+
+                document.getElementById('checkout-subtotal').textContent = Utils.formatCurrency(Cart.getSubtotal());
+                document.getElementById('checkout-total').textContent = Utils.formatCurrency(Cart.getTotal());
+            },
+
+            bindEvents() {
+                const form = document.getElementById('checkout-form');
+                if (form) {
+                    form.addEventListener('submit', (e) => {
+                        e.preventDefault();
+                        if (Cart.items.length === 0) {
+                            NotificationSystem.show('Your cart is empty!', 'error');
+                            return;
+                        }
+
+                        NotificationSystem.show('Processing payment & initiating supplier order...', 'success');
+                        setTimeout(() => {
+                            localStorage.removeItem('novacart_cart');
+                            localStorage.removeItem('novacart_coupon');
+                            alert('Order placed successfully! Order Number: NOVA-' + Math.floor(100000 + Math.random() * 900000));
+                            window.location.href = 'index.html';
+                        }, 2000);
+                    });
+                }
+            }
+        };
+
+        document.addEventListener('DOMContentLoaded', () => CheckoutApp.init());
+    </script>
+</body>
+</html>

@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Details — NovaCart</title>
+    <meta name="description" content="View product specifications, interactive 3D view, and secure ordering.">
+    <link rel="icon" type="image/svg+xml" href="assets/icons/favicon.svg">
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    <link rel="stylesheet" href="css/animations.css">
+    <link rel="stylesheet" href="css/accessibility.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script type="module" src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.8/dist/umd/supabase.js"></script>
+</head>
+<body>
+    <div id="toast-container" class="toast-container" aria-live="polite"></div>
+
+    <!-- Header -->
+    <header class="header scrolled" id="header">
+        <div class="container header-container">
+            <a href="index.html" class="logo">
+                <div class="logo-mark">N</div>
+                <span class="logo-text">NOVACART</span>
+            </a>
+            <nav class="nav-menu">
+                <ul class="nav-list">
+                    <li><a href="index.html" class="nav-link">Home</a></li>
+                    <li><a href="shop.html" class="nav-link">Shop</a></li>
+                    <li><a href="contact.html" class="nav-link">Contact</a></li>
+                </ul>
+            </nav>
+            <div class="header-actions">
+                <button id="cart-trigger-btn" class="icon-btn cart-btn" aria-label="Shopping Cart">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg>
+                    <span class="badge" id="cart-badge">0</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="main-content" style="padding-top: 120px; padding-bottom: 5rem;">
+        <div class="container" id="product-detail-container">
+            <!-- Dynamically populated -->
+        </div>
+    </main>
+
+    <script src="js/config.js"></script>
+    <script src="js/supabase.js"></script>
+    <script src="js/notifications.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="js/cart.js"></script>
+    <script src="js/wishlist.js"></script>
+    <script src="js/theme.js"></script>
+    <script>
+        const ProductDetailApp = {
+            init() {
+                const urlParams = new URLSearchParams(window.location.search);
+                const productId = urlParams.get('id') || 'prod_1';
+                const product = Utils.sampleProducts.find(p => p.id === productId) || Utils.sampleProducts[0];
+
+                this.renderProduct(product);
+            },
+
+            renderProduct(p) {
+                const container = document.getElementById('product-detail-container');
+                if (!container) return;
+
+                container.innerHTML = `
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; align-items: start;">
+                        <div class="glass-panel" style="padding: 1.5rem; text-align: center;">
+                            <img src="${p.image_url}" alt="${p.name}" style="width: 100%; max-height: 450px; object-fit: cover; border-radius: var(--radius-md);">
+                        </div>
+                        <div>
+                            <span class="badge" style="position: static; display: inline-block; margin-bottom: 1rem;">${p.category_name}</span>
+                            <h1 style="font-family: var(--font-heading); font-size: 2.5rem; margin-bottom: 1rem;">${p.name}</h1>
+                            <div class="product-rating" style="margin-bottom: 1.5rem;">★ <span>${p.rating} (${p.reviews_count} verified reviews)</span></div>
+                            <div class="product-price" style="margin-bottom: 1.5rem; display: flex; gap: 1rem; align-items: center;">
+                                <span class="current-price" style="font-size: 2rem;">${Utils.formatCurrency(p.price)}</span>
+                                <span class="original-price" style="font-size: 1.25rem;">${Utils.formatCurrency(p.original_price)}</span>
+                            </div>
+                            <p style="color: var(--text-secondary); margin-bottom: 2rem; line-height: 1.7;">${p.description}</p>
+
+                            <div style="display: flex; gap: 1rem; margin-bottom: 2rem;">
+                                <button class="btn btn-primary" style="flex: 1; padding: 1rem;" onclick='Cart.addItem(${JSON.stringify(p).replace(/"/g, "&quot;")})'>Add to Cart</button>
+                                <a href="checkout.html" class="btn btn-secondary" style="flex: 1; padding: 1rem; text-align: center;" onclick='Cart.addItem(${JSON.stringify(p).replace(/"/g, "&quot;")})'>Buy Now</a>
+                            </div>
+
+                            <div class="glass-panel" style="padding: 1.5rem; font-size: 0.9rem; color: var(--text-secondary); display: flex; flex-direction: column; gap: 0.75rem;">
+                                <div>📦 <strong>Global Express Dropshipping:</strong> Dispatched within 24 hours.</div>
+                                <div>🔒 <strong>Buyer Protection:</strong> 30-day money-back guarantee.</div>
+                                <div>⚡ <strong>Stock Status:</strong> In Stock (${p.stock} units available).</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+        };
+
+        document.addEventListener('DOMContentLoaded', () => ProductDetailApp.init());
+    </script>
+</body>
+</html>

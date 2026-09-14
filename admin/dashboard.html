@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard — NovaCart</title>
+    <link rel="icon" type="image/svg+xml" href="../assets/icons/favicon.svg">
+    <link rel="stylesheet" href="../css/main.css">
+    <link rel="stylesheet" href="../css/responsive.css">
+    <link rel="stylesheet" href="../css/accessibility.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div id="toast-container" class="toast-container" aria-live="polite"></div>
+
+    <header class="header scrolled" id="header">
+        <div class="container header-container">
+            <a href="../index.html" class="logo">
+                <div class="logo-mark">N</div>
+                <span class="logo-text">NOVACART ADMIN</span>
+            </a>
+            <div style="display: flex; gap: 1rem; align-items: center;">
+                <span class="badge badge-accent">Demo Admin Mode</span>
+                <a href="../index.html" class="btn btn-secondary" style="padding: 0.5rem 1rem; font-size: 0.85rem;">Exit to Store</a>
+            </div>
+        </div>
+    </header>
+
+    <main class="main-content" style="padding-top: 120px; padding-bottom: 5rem;">
+        <div class="container">
+            <h1 style="font-family: var(--font-heading); font-size: 2.25rem; margin-bottom: 2rem;">Dashboard Overview</h1>
+
+            <!-- Metric Cards -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.5rem; margin-bottom: 3rem;">
+                <div class="glass-panel" style="padding: 1.5rem;">
+                    <div style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 0.5rem;">Total Revenue</div>
+                    <div style="font-family: var(--font-heading); font-size: 2rem; font-weight: 700; color: var(--accent-success);">₹1,48,290.00</div>
+                </div>
+                <div class="glass-panel" style="padding: 1.5rem;">
+                    <div style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 0.5rem;">Total Orders</div>
+                    <div style="font-family: var(--font-heading); font-size: 2rem; font-weight: 700;">64</div>
+                </div>
+                <div class="glass-panel" style="padding: 1.5rem;">
+                    <div style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 0.5rem;">Active Products</div>
+                    <div style="font-family: var(--font-heading); font-size: 2rem; font-weight: 700;">28</div>
+                </div>
+                <div class="glass-panel" style="padding: 1.5rem;">
+                    <div style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 0.5rem;">Pending Supplier Orders</div>
+                    <div style="font-family: var(--font-heading); font-size: 2rem; font-weight: 700; color: var(--accent-warning);">5</div>
+                </div>
+            </div>
+
+            <!-- Recent Orders & Inventory -->
+            <div class="glass-panel" style="padding: 2rem;">
+                <h3 style="font-family: var(--font-heading); font-size: 1.25rem; margin-bottom: 1.5rem;">Recent Dropshipping Orders & Supplier Status</h3>
+                <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.95rem;">
+                    <thead>
+                        <tr style="border-bottom: 1px solid var(--border-color); color: var(--text-secondary);">
+                            <th style="padding-bottom: 1rem;">Order ID</th>
+                            <th style="padding-bottom: 1rem;">Customer</th>
+                            <th style="padding-bottom: 1rem;">Total</th>
+                            <th style="padding-bottom: 1rem;">Supplier Status</th>
+                            <th style="padding-bottom: 1rem;">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr style="border-bottom: 1px solid var(--border-color);">
+                            <td style="padding: 1rem 0;">#NOVA-94821</td>
+                            <td>Sanjay Kumar</td>
+                            <td>₹4,898.00</td>
+                            <td><span class="badge" style="position: static; background: var(--accent-success);">Dispatched</span></td>
+                            <td><button class="btn btn-secondary" style="padding: 0.25rem 0.75rem; font-size: 0.8rem;">View</button></td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid var(--border-color);">
+                            <td style="padding: 1rem 0;">#NOVA-94820</td>
+                            <td>Anita Sharma</td>
+                            <td>₹2,999.00</td>
+                            <td><span class="badge" style="position: static; background: var(--accent-warning);">Supplier Processing</span></td>
+                            <td><button class="btn btn-secondary" style="padding: 0.25rem 0.75rem; font-size: 0.8rem;">View</button></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <script src="../js/config.js"></script>
+    <script src="../js/supabase.js"></script>
+    <script src="../js/notifications.js"></script>
+    <script src="../js/theme.js"></script>
+</body>
+</html>
