@@ -1,0 +1,153 @@
+// Prisma Schema for NovaCart Enterprise Full-Stack E-Commerce & Admin
+// Save as prisma/schema.prisma
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id            String    @id @default(uuid())
+  email         String    @unique
+  passwordHash  String    @map("password_hash")
+  fullName      String    @map("full_name")
+  role          UserRole  @default(VIEWER)
+  isActive      Boolean   @default(true) @map("is_active")
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+  auditLogs     AuditLog[]
+
+  @@map("users")
+}
+
+enum UserRole {
+  SUPER_ADMIN
+  PRODUCT_MANAGER
+  ORDER_HANDLER
+  SUPPORT_STAFF
+  ACCOUNTANT
+  VIEWER
+}
+
+model Category {
+  id          String       @id @default(uuid())
+  name        String       @unique
+  slug        String       @unique
+  icon        String?
+  products    Product[]
+  createdAt   DateTime     @default(now()) @map("created_at")
+  updatedAt   DateTime     @updatedAt @map("updated_at")
+
+  @@map("categories")
+}
+
+model Product {
+  id              String           @id @default(uuid())
+  name            String
+  slug            String           @unique
+  description     String?
+  categoryId      String?          @map("category_id")
+  category        Category?        @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  price           Decimal          @db.Decimal(10, 2)
+  originalPrice   Decimal?         @map("original_price") @db.Decimal(10, 2)
+  stock           Int              @default(0)
+  lowStockThreshold Int            @default(5) @map("low_stock_threshold")
+  imageUrl        String?          @map("image_url")
+  badge           String?
+  rating          Decimal          @default(5.00) @db.Decimal(3, 2)
+  reviewsCount    Int              @default(0) @map("reviews_count")
+  isActive        Boolean          @default(true) @map("is_active")
+  orderItems      OrderItem[]
+  wishlists       Wishlist[]
+  createdAt       DateTime         @default(now()) @map("created_at")
+  updatedAt       DateTime         @updatedAt @map("updated_at")
+
+  @@map("products")
+}
+
+model Order {
+  id              String        @id @default(uuid())
+  orderNumber     String        @unique @map("order_number")
+  customerId      String?       @map("customer_id")
+  customer        Customer?     @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  status          OrderStatus   @default(PENDING)
+  paymentStatus   PaymentStatus @default(PENDING) @map("payment_status")
+  supplierStatus  String        @default("Pending") @map("supplier_status")
+  total           Decimal       @db.Decimal(10, 2)
+  shippingAddress Json?         @map("shipping_address")
+  orderItems      OrderItem[]
+  createdAt       DateTime      @default(now()) @map("created_at")
+  updatedAt       DateTime      @updatedAt @map("updated_at")
+
+  @@map("orders")
+}
+
+enum OrderStatus {
+  PENDING
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+  REFUNDED
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+  REFUNDED
+}
+
+model OrderItem {
+  id        String   @id @default(uuid())
+  orderId   String   @map("order_id")
+  order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId String?  @map("product_id")
+  product   Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
+  quantity  Int
+  price     Decimal  @db.Decimal(10, 2)
+
+  @@map("order_items")
+}
+
+model Customer {
+  id        String     @id @default(uuid())
+  email     String     @unique
+  fullName  String?    @map("full_name")
+  phone     String?
+  orders    Order[]
+  wishlists Wishlist[]
+  createdAt DateTime   @default(now()) @map("created_at")
+  updatedAt DateTime   @updatedAt @map("updated_at")
+
+  @@map("customers")
+}
+
+model Wishlist {
+  id         String   @id @default(uuid())
+  customerId String   @map("customer_id")
+  customer   Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  productId  String   @map("product_id")
+  product    Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  @@unique([customerId, productId])
+  @@map("wishlists")
+}
+
+model AuditLog {
+  id        String   @id @default(uuid())
+  userId    String?  @map("user_id")
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  action    String
+  resource  String
+  details   Json?
+  ipAddress String?  @map("ip_address")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("audit_logs")
+}
