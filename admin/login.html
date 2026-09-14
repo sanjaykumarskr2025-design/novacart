@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login — NovaCart Command Center</title>
+    <link rel="icon" type="image/svg+xml" href="../assets/icons/favicon.svg">
+    <link rel="stylesheet" href="../css/main.css">
+    <link rel="stylesheet" href="../css/responsive.css">
+    <link rel="stylesheet" href="../css/accessibility.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+</head>
+<body style="display: flex; align-items: center; justify-content: center; min-height: 100vh; background: var(--bg-primary);">
+    <div id="toast-container" class="toast-container" aria-live="polite"></div>
+
+    <div class="glass-panel" style="width: 100%; max-width: 420px; padding: 2.5rem; box-shadow: var(--shadow-lg);">
+        <div class="text-center" style="margin-bottom: 2rem;">
+            <div class="logo-mark" style="margin: 0 auto 1rem; width: 48px; height: 48px; font-size: 1.5rem;">N</div>
+            <h1 style="font-family: var(--font-heading); font-size: 1.75rem; margin-bottom: 0.5rem;">NovaCart Admin</h1>
+            <p style="color: var(--text-secondary); font-size: 0.9rem;">Secure Enterprise Command Center</p>
+        </div>
+
+        <form id="admin-login-form" style="display: flex; flex-direction: column; gap: 1.25rem;">
+            <div>
+                <label style="display: block; font-size: 0.85rem; margin-bottom: 0.5rem; color: var(--text-secondary);">Admin Username / Email</label>
+                <input type="text" id="admin-username" required value="admin@novacart.com" style="width: 100%; padding: 0.85rem 1rem; background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: var(--radius-md); color: var(--text-primary);">
+            </div>
+            <div>
+                <label style="display: block; font-size: 0.85rem; margin-bottom: 0.5rem; color: var(--text-secondary);">Password</label>
+                <input type="password" id="admin-password" required value="novacart2026" style="width: 100%; padding: 0.85rem 1rem; background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: var(--radius-md); color: var(--text-primary);">
+            </div>
+            <button type="submit" class="btn btn-primary" style="padding: 0.85rem; margin-top: 0.5rem;">Authenticate Access</button>
+        </form>
+
+        <div style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid var(--border-color); text-align: center; font-size: 0.8rem; color: var(--text-muted);">
+            Default Demo Credentials:<br>
+            <strong>Username:</strong> admin@novacart.com<br>
+            <strong>Password:</strong> novacart2026
+        </div>
+    </div>
+
+    <script src="../js/config.js"></script>
+    <script src="../js/notifications.js"></script>
+    <script>
+        document.getElementById('admin-login-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const user = document.getElementById('admin-username').value.trim();
+            const pass = document.getElementById('admin-password').value.trim();
+
+            if (user === 'admin@novacart.com' && pass === 'novacart2026') {
+                localStorage.setItem('novacart_admin_auth', 'true');
+                NotificationSystem.show('Authentication successful. Loading Command Center...', 'success');
+                setTimeout(() => {
+                    window.location.href = 'dashboard.html';
+                }, 1000);
+            } else {
+                NotificationSystem.show('Invalid admin credentials. Access denied.', 'error');
+            }
+        });
+    </script>
+</body>
+</html>
