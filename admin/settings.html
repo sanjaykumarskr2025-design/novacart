@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Store Settings — NovaCart Admin</title>
+    <link rel="icon" type="image/svg+xml" href="../assets/icons/favicon.svg">
+    <link rel="stylesheet" href="../css/main.css">
+    <link rel="stylesheet" href="../css/responsive.css">
+    <link rel="stylesheet" href="../css/accessibility.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+</head>
+<body style="background: var(--bg-primary);">
+    <div id="toast-container" class="toast-container" aria-live="polite"></div>
+
+    <div class="admin-layout" style="display: flex; min-height: 100vh;">
+        <!-- Sidebar -->
+        <aside style="width: 260px; background: var(--bg-secondary); border-right: 1px solid var(--border-color); display: flex; flex-direction: column; position: fixed; top: 0; bottom: 0; z-index: 100;">
+            <div style="padding: 1.5rem; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; gap: 0.75rem;">
+                <div class="logo-mark" style="width: 32px; height: 32px; font-size: 1.1rem;">N</div>
+                <span style="font-family: var(--font-heading); font-weight: 700; font-size: 1.1rem;">NOVACART ADMIN</span>
+            </div>
+            <nav style="flex-grow: 1; padding: 1.5rem 1rem; overflow-y: auto;">
+                <ul style="display: flex; flex-direction: column; gap: 0.5rem; font-size: 0.9rem;">
+                    <li><a href="dashboard.html" class="nav-link" style="padding: 0.75rem 1rem; border-radius: var(--radius-sm); display: block; color: var(--text-secondary);">📊 Overview & Analytics</a></li>
+                    <li><a href="products.html" class="nav-link" style="padding: 0.75rem 1rem; border-radius: var(--radius-sm); display: block; color: var(--text-secondary);">📦 Products Management</a></li>
+                    <li><a href="inventory.html" class="nav-link" style="padding: 0.75rem 1rem; border-radius: var(--radius-sm); display: block; color: var(--text-secondary);">⚡ Inventory & Stock</a></li>
+                    <li><a href="orders.html" class="nav-link" style="padding: 0.75rem 1rem; border-radius: var(--radius-sm); display: block; color: var(--text-secondary);">🛒 Orders & Supplier Flow</a></li>
+                    <li><a href="customers.html" class="nav-link" style="padding: 0.75rem 1rem; border-radius: var(--radius-sm); display: block; color: var(--text-secondary);">👥 Customers & VIPs</a></li>
+                    <li><a href="settings.html" class="nav-link active" style="padding: 0.75rem 1rem; border-radius: var(--radius-sm); display: block; background: var(--bg-tertiary); color: var(--text-primary);">⚙️ Store Settings</a></li>
+                </ul>
+            </nav>
+            <div style="padding: 1rem; border-top: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between;">
+                <span style="font-size: 0.8rem; color: var(--text-muted);">admin@novacart.com</span>
+                <button onclick="localStorage.removeItem('novacart_admin_auth'); window.location.href='login.html';" class="btn btn-secondary" style="padding: 0.25rem 0.5rem; font-size: 0.75rem;">Logout</button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main style="margin-left: 260px; flex-grow: 1; padding: 2.5rem;">
+            <div class="container" style="max-width: 800px;">
+                <div style="margin-bottom: 2rem;">
+                    <h1 style="font-family: var(--font-heading); font-size: 2.25rem; margin-bottom: 0.25rem;">Store Settings</h1>
+                    <p style="color: var(--text-secondary);">Configure store identity, currency, and gateway integrations.</p>
+                </div>
+
+                <div class="glass-panel" style="padding: 2.5rem;">
+                    <form id="settings-form" style="display: flex; flex-direction: column; gap: 1.5rem;">
+                        <div>
+                            <label style="display: block; font-size: 0.85rem; margin-bottom: 0.5rem; color: var(--text-secondary);">Store Name</label>
+                            <input type="text" id="set-store-name" value="NovaCart" style="width: 100%; padding: 0.85rem 1rem; background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: var(--radius-md); color: var(--text-primary);">
+                        </div>
+                        <div>
+                            <label style="display: block; font-size: 0.85rem; margin-bottom: 0.5rem; color: var(--text-secondary);">Support Email</label>
+                            <input type="email" id="set-email" value="support@novacart.com" style="width: 100%; padding: 0.85rem 1rem; background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: var(--radius-md); color: var(--text-primary);">
+                        </div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                            <div>
+                                <label style="display: block; font-size: 0.85rem; margin-bottom: 0.5rem; color: var(--text-secondary);">Currency Symbol</label>
+                                <input type="text" id="set-currency" value="₹" style="width: 100%; padding: 0.85rem 1rem; background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: var(--radius-md); color: var(--text-primary);">
+                            </div>
+                            <div>
+                                <label style="display: block; font-size: 0.85rem; margin-bottom: 0.5rem; color: var(--text-secondary);">Demo Mode</label>
+                                <select id="set-demo" style="width: 100%; padding: 0.85rem 1rem; background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: var(--radius-md); color: var(--text-primary);">
+                                    <option value="true">Enabled (Sample Data)</option>
+                                    <option value="false">Disabled (Supabase Live)</option>
+                                </select>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary" style="padding: 1rem; margin-top: 1rem;">Save Settings</button>
+                    </form>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="../js/config.js"></script>
+    <script src="../js/notifications.js"></script>
+    <script>
+        if (localStorage.getItem('novacart_admin_auth') !== 'true') {
+            window.location.href = 'login.html';
+        }
+
+        document.getElementById('settings-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            NotificationSystem.show('Store settings saved successfully!', 'success');
+        });
+    </script>
+</body>
+</html>

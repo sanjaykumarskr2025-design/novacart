@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customers Management — NovaCart Admin</title>
+    <link rel="icon" type="image/svg+xml" href="../assets/icons/favicon.svg">
+    <link rel="stylesheet" href="../css/main.css">
+    <link rel="stylesheet" href="../css/responsive.css">
+    <link rel="stylesheet" href="../css/accessibility.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+</head>
+<body style="background: var(--bg-primary);">
+    <div id="toast-container" class="toast-container" aria-live="polite"></div>
+
+    <div class="admin-layout" style="display: flex; min-height: 100vh;">
+        <!-- Sidebar -->
+        <aside style="width: 260px; background: var(--bg-secondary); border-right: 1px solid var(--border-color); display: flex; flex-direction: column; position: fixed; top: 0; bottom: 0; z-index: 100;">
+            <div style="padding: 1.5rem; border-bottom: 1px solid var(--border-color); display: flex; align-items: center; gap: 0.75rem;">
+                <div class="logo-mark" style="width: 32px; height: 32px; font-size: 1.1rem;">N</div>
+                <span style="font-family: var(--font-heading); font-weight: 700; font-size: 1.1rem;">NOVACART ADMIN</span>
+            </div>
+            <nav style="flex-grow: 1; padding: 1.5rem 1rem; overflow-y: auto;">
+                <ul style="display: flex; flex-direction: column; gap: 0.5rem; font-size: 0.9rem;">
+                    <li><a href="dashboard.html" class="nav-link" style="padding: 0.75rem 1rem; border-radius: var(--radius-sm); display: block; color: var(--text-secondary);">📊 Overview & Analytics</a></li>
+                    <li><a href="products.html" class="nav-link" style="padding: 0.75rem 1rem; border-radius: var(--radius-sm); display: block; color: var(--text-secondary);">📦 Products Management</a></li>
+                    <li><a href="inventory.html" class="nav-link" style="padding: 0.75rem 1rem; border-radius: var(--radius-sm); display: block; color: var(--text-secondary);">⚡ Inventory & Stock</a></li>
+                    <li><a href="orders.html" class="nav-link" style="padding: 0.75rem 1rem; border-radius: var(--radius-sm); display: block; color: var(--text-secondary);">🛒 Orders & Supplier Flow</a></li>
+                    <li><a href="customers.html" class="nav-link active" style="padding: 0.75rem 1rem; border-radius: var(--radius-sm); display: block; background: var(--bg-tertiary); color: var(--text-primary);">👥 Customers & VIPs</a></li>
+                    <li><a href="settings.html" class="nav-link" style="padding: 0.75rem 1rem; border-radius: var(--radius-sm); display: block; color: var(--text-secondary);">⚙️ Store Settings</a></li>
+                </ul>
+            </nav>
+            <div style="padding: 1rem; border-top: 1px solid var(--border-color); display: flex; align-items: center; justify-content: space-between;">
+                <span style="font-size: 0.8rem; color: var(--text-muted);">admin@novacart.com</span>
+                <button onclick="localStorage.removeItem('novacart_admin_auth'); window.location.href='login.html';" class="btn btn-secondary" style="padding: 0.25rem 0.5rem; font-size: 0.75rem;">Logout</button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main style="margin-left: 260px; flex-grow: 1; padding: 2.5rem;">
+            <div class="container" style="max-width: 100%;">
+                <div style="margin-bottom: 2rem;">
+                    <h1 style="font-family: var(--font-heading); font-size: 2.25rem; margin-bottom: 0.25rem;">Customers Directory</h1>
+                    <p style="color: var(--text-secondary);">View registered shoppers, purchase volume, and customer segments.</p>
+                </div>
+
+                <div class="glass-panel" style="padding: 2rem;">
+                    <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.95rem;">
+                        <thead>
+                            <tr style="border-bottom: 1px solid var(--border-color); color: var(--text-secondary);">
+                                <th style="padding-bottom: 1rem;">Customer Name</th>
+                                <th style="padding-bottom: 1rem;">Email Address</th>
+                                <th style="padding-bottom: 1rem;">Total Orders</th>
+                                <th style="padding-bottom: 1rem;">Lifetime Spend</th>
+                                <th style="padding-bottom: 1rem;">Segment</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr style="border-bottom: 1px solid var(--border-color);">
+                                <td style="padding: 1rem 0; font-weight: 600;">Sanjay Kumar</td>
+                                <td style="color: var(--text-secondary);">sanjay@example.com</td>
+                                <td>3</td>
+                                <td style="font-weight: 700;">₹14,890.00</td>
+                                <td><span class="badge" style="position: static; background: var(--accent-primary);">VIP</span></td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid var(--border-color);">
+                                <td style="padding: 1rem 0; font-weight: 600;">Anita Sharma</td>
+                                <td style="color: var(--text-secondary);">anita@example.com</td>
+                                <td>1</td>
+                                <td style="font-weight: 700;">₹2,999.00</td>
+                                <td><span class="badge" style="position: static; background: var(--accent-success);">Returning</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="../js/config.js"></script>
+    <script src="../js/notifications.js"></script>
+    <script>
+        if (localStorage.getItem('novacart_admin_auth') !== 'true') {
+            window.location.href = 'login.html';
+        }
+    </script>
+</body>
+</html>
